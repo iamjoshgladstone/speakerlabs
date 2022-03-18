@@ -39,4 +39,11 @@
   height: auto;
   width: auto;
 }
+
+.q-header {
+  height: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>
