@@ -16,7 +16,10 @@
           rounded
           text-color="dark"
           label="15 sec"
-          @click="startTimer(15, 2)"
+          @click="
+            startTimer();
+            setTime15();
+          "
         />
         <q-btn
           class=""
@@ -25,7 +28,10 @@
           rounded
           text-color="dark"
           label="30 sec"
-          @click="startTimer(30, 4)"
+          @click="
+            startTimer();
+            setTime30();
+          "
         />
         <q-btn
           class=""
@@ -34,7 +40,10 @@
           rounded
           text-color="dark"
           label="45 sec"
-          @click="startTimer(45, 6)"
+          @click="
+            startTimer();
+            setTime45();
+          "
         />
         <q-btn
           class=""
@@ -43,7 +52,10 @@
           rounded
           text-color="dark"
           label="60 sec"
-          @click="startTimer(60, 8)"
+          @click="
+            startTimer();
+            setTime60();
+          "
         />
       </div>
 
@@ -57,14 +69,14 @@
         <div class="text-h4">{{ shownPrompt }}</div>
 
         <!-- word section -->
-        <div class="absolute-center flex-center column">
+        <div class="absolute-center flex-center row fit">
           <div
             v-for="i in numOfWords"
             :key="i"
             :id="'word' + i"
-            class="col active"
+            class="col inactive"
           >
-            {{ wordList[wordArr[i - 1]] }}
+            {{ wordList[wordArr[i]] }}
           </div>
         </div>
         <!-- Progress Bar -->
@@ -90,7 +102,9 @@ const isFinished = ref(false);
 const progress = ref(1);
 const time = ref(55);
 const numOfWords = ref(6);
-
+const miliSecondTime = time.value * 1000;
+const countdownTime = 0.01 * miliSecondTime;
+const progressDecrement = 1 / (miliSecondTime / 100) / 2;
 let timer;
 const wordArr = ref([]);
 const wordList = ref([
@@ -114,6 +128,11 @@ const promptList = ref([
 ]);
 const shownPrompt = ref(null);
 
+// setTime
+const setTime15 = () => {
+  time.value = 15;
+};
+
 // isActive Words
 const isActive1 = ref(false);
 const isActive2 = ref(false);
@@ -122,12 +141,7 @@ const isActive4 = ref(false);
 const isActive5 = ref(false);
 const isActive6 = ref(false);
 
-const startTimer = (setTime, numWords) => {
-  time.value = setTime;
-  numOfWords.value = numWords;
-  const miliSecondTime = time.value * 1000;
-  const countdownTime = 0.01 * miliSecondTime;
-  const progressDecrement = 1 / (miliSecondTime / 100) / 2;
+const startTimer = () => {
   generateWordArray();
   generatePrompt();
   isTimerStarted.value = true;
@@ -138,7 +152,7 @@ const startTimer = (setTime, numWords) => {
 };
 
 const generateWordArray = () => {
-  while (wordArr.value.length < numOfWords.value) {
+  while (wordArr.value.length < 6) {
     var r = Math.floor(Math.random() * wordList.value.length);
     if (wordArr.value.indexOf(r) === -1) wordArr.value.push(r);
   }
@@ -150,24 +164,52 @@ const generatePrompt = () => {
     promptList.value[Math.floor(Math.random() * promptList.value.length)];
 };
 
-// quadrants
+const word1 = document.getElementById("word1");
+const word2 = document.getElementById("word2");
+const word3 = document.getElementById("word3");
+const word4 = document.getElementById("word4");
+const word5 = document.getElementById("word5");
+const word6 = document.getElementById("word6");
 
 watch(progress, (newCount, oldCount) => {
-  // // stop timer functions
-  console.log(newCount);
+  // update words function
+  if (newCount <= (1 / 6) * 6 - 0.02) {
+    isActive1.value = true;
+    word1.classList.add("active");
+  }
 
+  if (newCount <= (1 / 6) * 5 && newCount >= (1 / 6) * 4) {
+    isActive2.value = true;
+    word2.classList.add("active");
+  }
+
+  if (newCount <= (1 / 6) * 4 && newCount >= (1 / 6) * 3) {
+    isActive3.value = true;
+    word3.classList.add("active");
+  }
+
+  if (newCount <= (1 / 6) * 3 && newCount >= (1 / 6) * 2) {
+    isActive4.value = true;
+    word4.classList.add("active");
+    word4.classList.remove("inactive");
+  }
+
+  if (newCount <= (1 / 6) * 2 && newCount >= (1 / 6) * 1) {
+    isActive5.value = true;
+    word5.classList.add("active");
+    word5.classList.remove("inactive");
+  }
+
+  if (newCount <= (1 / 6) * 1) {
+    isActive6.value = true;
+    word6.classList.add("active");
+    word6.classList.remove("inactive");
+  }
+
+  // // stop timer function
   if (oldCount <= 0 || newCount <= 0) {
     stopTimer();
   }
-
-  const quadrants = 1 / numOfWords.value;
-  const i = numOfWords.value - 1;
-
-  // while (i > 0) {
-  //   if (newCount <= quadrants * i && newCount >= quadrants * (i - 1)) {
-  //     i--;
-  //   }
-  // }
 });
 
 const stopTimer = () => {
