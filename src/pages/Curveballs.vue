@@ -57,12 +57,12 @@
         <div class="text-h4">{{ shownPrompt }}</div>
 
         <!-- word section -->
-        <div class="absolute-center flex-center column">
+        <div class="absolute-center flex-center row" id="words">
           <div
             v-for="i in numOfWords"
             :key="i"
             :id="'word' + i"
-            class="col active"
+            class="col-6 inactive"
           >
             {{ wordList[wordArr[i - 1]] }}
           </div>
@@ -90,6 +90,7 @@ const isFinished = ref(false);
 const progress = ref(1);
 const time = ref(55);
 const numOfWords = ref(6);
+let i;
 
 let timer;
 const wordArr = ref([]);
@@ -114,14 +115,6 @@ const promptList = ref([
 ]);
 const shownPrompt = ref(null);
 
-// isActive Words
-const isActive1 = ref(false);
-const isActive2 = ref(false);
-const isActive3 = ref(false);
-const isActive4 = ref(false);
-const isActive5 = ref(false);
-const isActive6 = ref(false);
-
 const startTimer = (setTime, numWords) => {
   time.value = setTime;
   numOfWords.value = numWords;
@@ -132,6 +125,7 @@ const startTimer = (setTime, numWords) => {
   generatePrompt();
   isTimerStarted.value = true;
   isFinished.value = false;
+  i = numWords - 1;
   timer = setInterval(() => {
     progress.value = progress.value - progressDecrement;
   }, 50);
@@ -151,23 +145,29 @@ const generatePrompt = () => {
 };
 
 // quadrants
+let n = 0;
 
 watch(progress, (newCount, oldCount) => {
-  // // stop timer functions
-  console.log(newCount);
+  const quadrants = 1 / numOfWords.value;
+  console.log(i, n, quadrants);
+  const elements = document.getElementById("words").children;
+  // elements.item(n).classList.add("active"); // add this in if you want words to appear immediately
+
+  /*  /// // stop timer functions*/
 
   if (oldCount <= 0 || newCount <= 0) {
     stopTimer();
   }
 
-  const quadrants = 1 / numOfWords.value;
-  const i = numOfWords.value - 1;
-
-  // while (i > 0) {
-  //   if (newCount <= quadrants * i && newCount >= quadrants * (i - 1)) {
-  //     i--;
-  //   }
-  // }
+  if (
+    newCount <= quadrants * i &&
+    newCount >= quadrants * (i - 1) &&
+    n <= numOfWords.value - 1
+  ) {
+    elements.item(n).classList.add("active");
+    n++;
+    i--;
+  }
 });
 
 const stopTimer = () => {
@@ -175,21 +175,13 @@ const stopTimer = () => {
   isFinished.value = true;
   isTimerStarted.value = false;
   progress.value = 1;
-  isActive1.value = false;
-  isActive2.value = false;
-  isActive3.value = false;
-  isActive4.value = false;
-  isActive5.value = false;
-  isActive6.value = false;
   wordArr.value = [];
+  n = 0;
+  i = numOfWords.value - 1;
 };
 </script>
 
 <style>
-/* * {
-  border: 1px solid red;
-} */
-
 .col {
   max-height: 200px;
   max-width: 300px;
